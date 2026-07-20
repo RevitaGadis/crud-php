@@ -17,6 +17,35 @@ if ($_SESSION["level"] != 1 && $_SESSION["level"] != 2) {
 
 $title = 'Daftar Barang';
 include 'layout/header.php';
+
+if (isset($_POST['tambah'])) {
+    if (create_barang($_POST) > 0) {
+        echo "<script>
+			alert('Data barang berhasil ditambahkan');
+			document.location.href = 'index.php';
+			</script>";
+    } else {
+        echo "<script>
+			alert('Data barang gagal ditambahkan');
+			document.location.href = 'index.php';
+			</script>";
+    }
+}
+
+if (isset($_POST['ubah'])) {
+    if (update_barang($_POST) > 0) {
+        echo "<script>
+			alert('Data barang berhasil diubah');
+			document.location.href = 'index.php';
+			</script>";
+    } else {
+        echo "<script>
+			alert('Data barang gagal diubah');
+			document.location.href = 'index.php';
+			</script>";
+    }
+}
+
 $data_barang = select("SELECT * FROM barang ORDER BY id_barang ASC");
 ?>
 
@@ -45,9 +74,9 @@ $data_barang = select("SELECT * FROM barang ORDER BY id_barang ASC");
                 <h5 class="card-title mb-0">Tabel Data Barang</h5>
               </div>
               <div class="card-body">
-                <a href="tambah-barang.php" class="btn btn-primary mb-3 text-decoration-none">
+                <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#modalTambah">
                   <i class="bi bi-plus-lg me-1"></i> Tambah
-                </a>
+                </button>
 
                 <table class="table table-hover align-middle" id="tabel">
                   <thead>
@@ -74,12 +103,12 @@ $data_barang = select("SELECT * FROM barang ORDER BY id_barang ASC");
                       </td>
                       <td><?= date("d/m/Y | H:i:s", strtotime($barang['tanggal'])); ?></td>
                       <td class="text-center">
-                        <a href="ubah-barang.php?id_barang=<?= $barang['id_barang']; ?>" class="btn btn-success btn-sm">
+                        <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalUbah<?= $barang['id_barang']; ?>">
                           <i class="bi bi-pencil-square"></i> Ubah
-                        </a>
-                        <a href="hapus-barang.php?id_barang=<?= $barang['id_barang']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Yakin data barang akan dihapus')">
+                        </button>
+                        <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#modalHapus<?= $barang['id_barang']; ?>">
                           <i class="bi bi-trash"></i> Hapus
-                        </a>
+                        </button>
                       </td>
                     </tr>
                     <?php endforeach; ?>
@@ -92,6 +121,91 @@ $data_barang = select("SELECT * FROM barang ORDER BY id_barang ASC");
         <!--end::App Content-->
       </main>
       <!--end::App Main-->
+
+<!-- Modal Tambah -->
+<div class="modal fade" id="modalTambah" tabindex="-1" aria-labelledby="modalTambahLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="modalTambahLabel"><i class="bi bi-plus-lg me-1"></i> Tambah Barang</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form action="" method="post">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="nama" class="form-label">Nama Barang</label>
+            <input type="text" class="form-control" id="nama" name="nama" placeholder="Nama Barang..." required>
+          </div>
+          <div class="mb-3">
+            <label for="jumlah" class="form-label">Jumlah</label>
+            <input type="number" class="form-control" id="jumlah" name="jumlah" placeholder="Jumlah Barang..." required>
+          </div>
+          <div class="mb-3">
+            <label for="harga" class="form-label">Harga Barang</label>
+            <input type="number" class="form-control" id="harga" name="harga" placeholder="Harga Barang..." required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kembali</button>
+          <button type="submit" class="btn btn-primary" name="tambah">Tambah</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Ubah & Hapus (per baris) -->
+<?php foreach ($data_barang as $barang) : ?>
+<div class="modal fade" id="modalUbah<?= $barang['id_barang']; ?>" tabindex="-1" aria-labelledby="modalUbahLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title" id="modalUbahLabel"><i class="bi bi-pencil-square me-1"></i> Ubah Barang</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form action="" method="post">
+        <div class="modal-body">
+          <input type="hidden" name="id_barang" value="<?= $barang['id_barang']; ?>">
+          <div class="mb-3">
+            <label for="nama" class="form-label">Nama Barang</label>
+            <input type="text" class="form-control" name="nama" value="<?= $barang['nama']; ?>" placeholder="Nama Barang..." required>
+          </div>
+          <div class="mb-3">
+            <label for="jumlah" class="form-label">Jumlah</label>
+            <input type="number" class="form-control" name="jumlah" value="<?= $barang['jumlah']; ?>" placeholder="Jumlah Barang..." required>
+          </div>
+          <div class="mb-3">
+            <label for="harga" class="form-label">Harga Barang</label>
+            <input type="number" class="form-control" name="harga" value="<?= $barang['harga']; ?>" placeholder="Harga Barang..." required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kembali</button>
+          <button type="submit" class="btn btn-success" name="ubah">Ubah</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modalHapus<?= $barang['id_barang']; ?>" tabindex="-1" aria-labelledby="modalHapusLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="modalHapusLabel"><i class="bi bi-trash me-1"></i> Hapus Barang</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Yakin ingin menghapus data barang: <strong><?= $barang['nama']; ?></strong>?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kembali</button>
+        <a href="hapus-barang.php?id_barang=<?= $barang['id_barang']; ?>" class="btn btn-danger">Hapus</a>
+      </div>
+    </div>
+  </div>
+</div>
+<?php endforeach; ?>
 
 <script>
   new DataTable('#tabel');

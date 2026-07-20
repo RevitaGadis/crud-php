@@ -2,7 +2,6 @@
 
 session_start();
 
-// membatasi halaman sebelum login
 if (!isset($_SESSION["login"])) {
     echo "<script>
             alert('login dulu dong');
@@ -11,7 +10,6 @@ if (!isset($_SESSION["login"])) {
     exit;
 }
 
-// kosongkan $_SESSION user login
 $_SESSION = [];
 
 session_unset();
