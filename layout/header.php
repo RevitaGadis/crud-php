@@ -87,6 +87,13 @@ include 'config/app.php';
               <?php endif; ?>
 
               <li class="nav-item">
+                <a href="pegawai.php" class="nav-link<?= basename($_SERVER['PHP_SELF']) == 'pegawai.php' ? ' active' : ''; ?>">
+                  <i class="nav-icon bi bi-person-badge-fill"></i>
+                  <p>Data Pegawai</p>
+                </a>
+              </li>
+
+              <li class="nav-item">
                 <a href="crud-modal.php" class="nav-link<?= basename($_SERVER['PHP_SELF']) == 'crud-modal.php' ? ' active' : ''; ?>">
                   <i class="nav-icon bi bi-person-badge-fill"></i>
                   <p>Data Akun</p>

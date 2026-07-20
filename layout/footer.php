@@ -32,6 +32,10 @@
     <script src="https://cdn.datatables.net/2.3.8/js/dataTables.bootstrap5.js"></script>
     <!--end::jQuery + DataTables-->
 
+    <script>
+      new DataTable('#tabel');
+    </script>
+
       <script src="https://cdn.ckeditor.com/4.22.1/full/ckeditor.js"></script>
       <script>
         CKEDITOR.replace('alamat', {

@@ -77,6 +77,9 @@ $data_barang = select("SELECT * FROM barang ORDER BY id_barang ASC");
                 <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#modalTambah">
                   <i class="bi bi-plus-lg me-1"></i> Tambah
                 </button>
+                <button type="button" class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#modalFilter">
+                  <i class="fas fa-search"></i> Filter Data
+                </button>
 
                 <table class="table table-hover align-middle" id="tabel">
                   <thead>
@@ -207,8 +210,34 @@ $data_barang = select("SELECT * FROM barang ORDER BY id_barang ASC");
 </div>
 <?php endforeach; ?>
 
-<script>
-  new DataTable('#tabel');
-</script>
+<!-- Modal Filter -->
+<div class="modal fade" id="modalFilter" tabindex="-1" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    Close
+                </button>
+                <button type="button" class="btn btn-primary">
+                    Save changes
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
 
 <?php include 'layout/footer.php'; ?>
