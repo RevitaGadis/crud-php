@@ -39,17 +39,7 @@ $data_pegawai = select("SELECT * FROM pegawai ORDER BY id_pegawai DESC");
                 <h5 class="card-title mb-0">Tabel Data Pegawai</h5>
               </div>
               <div class="card-body">
-                <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#modalTambah">
-                  <i class="bi bi-plus-lg me-1"></i> Tambah
-                </button>
-                <a href="download-excel-pegawai.php" class="btn btn-success mb-3 text-decoration-none">
-                  <i class="bi bi-file-earmark-excel me-1"></i> Download Excel
-                </a>
-                <a href="download-pdf-pegawai.php" class="btn btn-danger mb-3 text-decoration-none">
-                  <i class="bi bi-file-earmark-pdf me-1"></i> Download PDF
-                </a>
-
-                <table class="table table-hover align-middle" id="tabel">
+                <table class="table table-hover align-middle">
                   <thead>
                     <tr>
                       <th>No</th>

@@ -101,6 +101,13 @@ include 'config/app.php';
               </li>
 
               <li class="nav-item">
+                <a href="email.php" class="nav-link<?= basename($_SERVER['PHP_SELF']) == 'email.php' ? ' active' : ''; ?>">
+                  <i class="nav-icon bi bi-envelope"></i>
+                  <p>Kirim Email</p>
+                </a>
+              </li>
+
+              <li class="nav-item">
                 <a href="logout.php" class="nav-link">
                   <i class="nav-icon bi bi-box-arrow-right"></i>
                   <p>Keluar</p>

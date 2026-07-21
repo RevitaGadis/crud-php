@@ -46,7 +46,30 @@ if (isset($_POST['ubah'])) {
     }
 }
 
-$data_barang = select("SELECT * FROM barang ORDER BY id_barang ASC");
+// Default: nilai filter kosong (dipakai untuk mengisi ulang form setelah submit)
+$tgl_awal_raw  = '';
+$tgl_akhir_raw = '';
+
+if (isset($_POST['filter'])) {
+    $tgl_awal_raw  = strip_tags($_POST['tgl_awal']);
+    $tgl_akhir_raw = strip_tags($_POST['tgl_akhir']);
+
+    $tgl_awal  = $tgl_awal_raw . " 00:00:00";
+    $tgl_akhir = $tgl_akhir_raw . " 23:59:59";
+
+    global $db;
+    $stmt = mysqli_prepare($db, "SELECT * FROM barang WHERE tanggal BETWEEN ? AND ? ORDER BY id_barang DESC");
+    mysqli_stmt_bind_param($stmt, "ss", $tgl_awal, $tgl_akhir);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $data_barang = [];
+    while ($row = mysqli_fetch_assoc($result)) {
+        $data_barang[] = $row;
+    }
+    mysqli_stmt_close($stmt);
+} else {
+    $data_barang = select("SELECT * FROM barang ORDER BY id_barang DESC");
+}
 ?>
 
       <!--begin::App Main-->
@@ -98,11 +121,11 @@ $data_barang = select("SELECT * FROM barang ORDER BY id_barang ASC");
                     <?php foreach ($data_barang as $barang) : ?>
                     <tr>
                       <td><?= $no++; ?></td>
-                      <td><?= $barang['nama']; ?></td>
+                      <td><?= htmlspecialchars($barang['nama']); ?></td>
                       <td><?= $barang['jumlah']; ?></td>
                       <td>Rp.<?= number_format($barang['harga'], 0, ',', '.'); ?></td>
                       <td class="text-center">
-                        <img alt="barcode" src="barcode.php?codetype=Code128&size15&text=<?= $barang['barcode']; ?>&print=true">
+                        <img alt="barcode" src="barcode.php?codetype=Code128&size15&text=<?= urlencode($barang['barcode']); ?>&print=true">
                       </td>
                       <td><?= date("d/m/Y | H:i:s", strtotime($barang['tanggal'])); ?></td>
                       <td class="text-center">
@@ -157,7 +180,7 @@ $data_barang = select("SELECT * FROM barang ORDER BY id_barang ASC");
   </div>
 </div>
 
-<!-- Modal Ubah & Hapus (per baris) -->
+<!-- Modal Ubah & Hapus -->
 <?php foreach ($data_barang as $barang) : ?>
 <div class="modal fade" id="modalUbah<?= $barang['id_barang']; ?>" tabindex="-1" aria-labelledby="modalUbahLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -171,7 +194,7 @@ $data_barang = select("SELECT * FROM barang ORDER BY id_barang ASC");
           <input type="hidden" name="id_barang" value="<?= $barang['id_barang']; ?>">
           <div class="mb-3">
             <label for="nama" class="form-label">Nama Barang</label>
-            <input type="text" class="form-control" name="nama" value="<?= $barang['nama']; ?>" placeholder="Nama Barang..." required>
+            <input type="text" class="form-control" name="nama" value="<?= htmlspecialchars($barang['nama']); ?>" placeholder="Nama Barang..." required>
           </div>
           <div class="mb-3">
             <label for="jumlah" class="form-label">Jumlah</label>
@@ -199,7 +222,7 @@ $data_barang = select("SELECT * FROM barang ORDER BY id_barang ASC");
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <p>Yakin ingin menghapus data barang: <strong><?= $barang['nama']; ?></strong>?</p>
+        <p>Yakin ingin menghapus data barang: <strong><?= htmlspecialchars($barang['nama']); ?></strong>?</p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kembali</button>
@@ -211,31 +234,39 @@ $data_barang = select("SELECT * FROM barang ORDER BY id_barang ASC");
 <?php endforeach; ?>
 
 <!-- Modal Filter -->
-<div class="modal fade" id="modalFilter" tabindex="-1" aria-labelledby="exampleModalLabel"
+<div class="modal fade" id="modalFilter" tabindex="-1" aria-labelledby="modalFilterLabel"
     aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
 
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="modalFilterLabel"><i class="fas fa-search me-1"></i> Filter Data Barang</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
             <div class="modal-body">
+                <form action="" method="post">
 
+                    <div class="mb-3">
+                        <label for="tgl_awal" class="form-label">Tanggal Awal</label>
+                        <input type="date" name="tgl_awal" id="tgl_awal" class="form-control" value="<?= htmlspecialchars($tgl_awal_raw); ?>">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="tgl_akhir" class="form-label">Tanggal Akhir</label>
+                        <input type="date" name="tgl_akhir" id="tgl_akhir" class="form-control" value="<?= htmlspecialchars($tgl_akhir_raw); ?>">
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
+                            Batal
+                        </button>
+                        <button type="submit" class="btn btn-success btn-sm" name="filter">
+                            Submit
+                        </button>
+                    </div>
+                </form>
             </div>
-
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                    Close
-                </button>
-                <button type="button" class="btn btn-primary">
-                    Save changes
-                </button>
-            </div>
-
         </div>
     </div>
 </div>
