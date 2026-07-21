@@ -25,14 +25,14 @@ if (isset($_POST['kirim'])) {
         $mail->isSMTP();
         $mail->Host       = 'smtp.gmail.com';
         $mail->SMTPAuth   = true;
-        $mail->Username   = 'tutormubatekno@gmail.com';
-        $mail->Password   = 'hekuvjimgpsabydd';
+        $mail->Username   = 'devrevita@gmail.com';
+        $mail->Password   ='actr wkyf puhg fcpn';
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
         $mail->Port       = 465;
 
-        $mail->setFrom('tutormubatekno@gmail.com', 'Tutorial Muba Teknologi');
+        $mail->setFrom('devrevita@gmail.com', 'Revita');
         $mail->addAddress($email_penerima);
-        $mail->addReplyTo('@gmail.com', 'Tutorial Muba Teknologi');
+        $mail->addReplyTo('devrevita@gmail.com', 'Revita');
 
         $mail->Subject = $subject;
         $mail->Body    = $pesan;
