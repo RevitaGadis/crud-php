@@ -1,0 +1,15 @@
+# Kredensial database (jangan pernah di-commit)
+/config/database.php
+
+# Dependency hasil composer install
+/vendor/
+
+# File upload user (foto mahasiswa, dll) - data runtime, bukan source code
+/assets/img/*
+!/assets/img/.gitkeep
+
+# File OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+*.log
