@@ -295,8 +295,6 @@ foreach ($data_mahasiswa as $m) {
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script>
-  new DataTable('#tabel');
-
   // Data chart dikirim dari PHP (hasil query data_mahasiswa)
   const dataProdi = {
     labels: <?= json_encode(array_keys($chart_prodi)); ?>,
