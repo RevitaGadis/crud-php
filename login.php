@@ -69,7 +69,7 @@ if (isset($_POST['login'])) {
     
 <main class="form-signin">
   <form action="" method="post"> 
-    <img class="mb-4" src="assets/alien.jpg" alt="" width="72" height="57">
+    <img class="mb-4" src="assets/img/alien.jpg" alt="" width="72" height="57">
     <h1 class="h3 mb-3 fw-normal">Admin Login</h1>
 
     <?php if (isset($error)) : ?>
