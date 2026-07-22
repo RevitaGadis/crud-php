@@ -70,6 +70,27 @@ if (isset($_POST['filter'])) {
 } else {
     $data_barang = select("SELECT * FROM barang ORDER BY id_barang DESC");
 }
+
+// Agregasi data untuk chart
+$chart_nama   = [];
+$chart_jumlah = [];
+$chart_bulan  = []; // key: Y-m (untuk sorting kronologis)
+foreach ($data_barang as $b) {
+    $chart_nama[]   = $b['nama'];
+    $chart_jumlah[] = (int) $b['jumlah'];
+
+    $bulanKey = date('Y-m', strtotime($b['tanggal']));
+    $nilai    = $b['jumlah'] * $b['harga'];
+    $chart_bulan[$bulanKey] = ($chart_bulan[$bulanKey] ?? 0) + $nilai;
+}
+ksort($chart_bulan, SORT_STRING);
+
+$chart_bulan_label = [];
+$chart_bulan_nilai = [];
+foreach ($chart_bulan as $key => $nilai) {
+    $chart_bulan_label[] = date('M Y', strtotime($key . '-01'));
+    $chart_bulan_nilai[] = $nilai;
+}
 ?>
 
       <!--begin::App Main-->
@@ -142,6 +163,32 @@ if (isset($_POST['filter'])) {
                 </table>
               </div>
             </div>
+
+            <!--begin::Chart Row Barang-->
+            <div class="row mt-4">
+              <div class="col-md-6 mb-3">
+                <div class="card h-100">
+                  <div class="card-header bg-success text-white">
+                    <h6 class="card-title mb-0"><i class="bi bi-bar-chart-fill me-1"></i> Jumlah Stok per Barang</h6>
+                  </div>
+                  <div class="card-body">
+                    <canvas id="chartStok" height="220"></canvas>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <div class="card h-100">
+                  <div class="card-header bg-primary text-white">
+                    <h6 class="card-title mb-0"><i class="bi bi-graph-up me-1"></i> Nilai Barang per Bulan</h6>
+                  </div>
+                  <div class="card-body">
+                    <canvas id="chartNilaiBulan" height="220"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!--end::Chart Row Barang-->
+
           </div>
         </div>
         <!--end::App Content-->
@@ -270,5 +317,63 @@ if (isset($_POST['filter'])) {
         </div>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+  const dataStok = {
+    labels: <?= json_encode(array_map('htmlspecialchars_decode', $chart_nama)); ?>,
+    values: <?= json_encode($chart_jumlah); ?>
+  };
+  const dataNilaiBulan = {
+    labels: <?= json_encode($chart_bulan_label); ?>,
+    values: <?= json_encode($chart_bulan_nilai); ?>
+  };
+
+  new Chart(document.getElementById('chartStok'), {
+    type: 'bar',
+    data: {
+      labels: dataStok.labels,
+      datasets: [{
+        label: 'Jumlah Stok',
+        data: dataStok.values,
+        backgroundColor: '#198754'
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+    }
+  });
+
+  new Chart(document.getElementById('chartNilaiBulan'), {
+    type: 'line',
+    data: {
+      labels: dataNilaiBulan.labels,
+      datasets: [{
+        label: 'Nilai Barang (Rp)',
+        data: dataNilaiBulan.values,
+        borderColor: '#0d6efd',
+        backgroundColor: 'rgba(13,110,253,0.15)',
+        fill: true,
+        tension: 0.3
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            callback: function (value) {
+              return 'Rp' + value.toLocaleString('id-ID');
+            }
+          }
+        }
+      }
+    }
+  });
+</script>
 
 <?php include 'layout/footer.php'; ?>

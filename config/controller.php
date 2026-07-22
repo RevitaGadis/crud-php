@@ -63,7 +63,7 @@ function create_mahasiswa($post)
         return false;
     }
 
-    $query = "INSERT INTO mahasiswa VALUES(null, '$nama', '$prodi', '$jk', '$telepon','$email','$foto', '$alamat'";
+    $query = "INSERT INTO mahasiswa VALUES(null, '$nama', '$prodi', '$jk', '$telepon','$email','$foto', '$alamat')";
     mysqli_query($db, $query);
     return mysqli_affected_rows($db);
 
@@ -83,14 +83,14 @@ function upload_file()
     if (!in_array($extensifile, $extensifileValid)) {
         echo"<script>
 			alert('Format file tidak valid');
-			document.location.href = 'tambah-mahasiswa.php';
+			document.location.href = 'mahasiswa.php';
 			</script>";
         die();
 	    }
     if ($ukuranFile>2048000){
         echo"<script>
-			alert('Format file tidak valid');
-			document.location.href = 'tambah-mahasiswa.php';
+			alert('Ukuran file terlalu besar (maks 2MB)');
+			document.location.href = 'mahasiswa.php';
 			</script>";
         die();
 	    }

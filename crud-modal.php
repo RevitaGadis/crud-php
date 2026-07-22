@@ -13,6 +13,18 @@ $data_akun = select("SELECT * FROM akun ORDER BY id_akun ASC");
 $id_akun = $_SESSION['id_akun'];
 $data_bylogin = select("SELECT * FROM akun WHERE id_akun = $id_akun");
 
+// Agregasi data untuk chart distribusi level akun (khusus admin/level 1)
+$chart_level = ['Admin' => 0, 'Operator Barang' => 0, 'Operator Mahasiswa' => 0];
+foreach ($data_akun as $a) {
+    if ($a['level'] == 1) {
+        $chart_level['Admin']++;
+    } elseif ($a['level'] == 2) {
+        $chart_level['Operator Barang']++;
+    } elseif ($a['level'] == 3) {
+        $chart_level['Operator Mahasiswa']++;
+    }
+}
+
 if (isset($_POST['tambah'])) {
     if (create_akun($_POST) > 0) {
         echo "<script>
@@ -123,6 +135,24 @@ if (isset($_POST['ubah'])) {
                 </table>
               </div>
             </div>
+
+            <?php if ($_SESSION['level'] == 1) : ?>
+            <!--begin::Chart Row Akun-->
+            <div class="row mt-4">
+              <div class="col-md-6 col-lg-5 mb-3">
+                <div class="card h-100">
+                  <div class="card-header bg-dark text-white">
+                    <h6 class="card-title mb-0"><i class="bi bi-pie-chart-fill me-1"></i> Distribusi Akun per Level</h6>
+                  </div>
+                  <div class="card-body">
+                    <canvas id="chartLevel" height="220"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!--end::Chart Row Akun-->
+            <?php endif; ?>
+
           </div>
         </div>
         <!--end::App Content-->
@@ -256,5 +286,31 @@ if (isset($_POST['ubah'])) {
 <script>
   new DataTable('#tabel');
 </script>
+
+<?php if ($_SESSION['level'] == 1) : ?>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+  const dataLevel = {
+    labels: <?= json_encode(array_keys($chart_level)); ?>,
+    values: <?= json_encode(array_values($chart_level)); ?>
+  };
+
+  new Chart(document.getElementById('chartLevel'), {
+    type: 'pie',
+    data: {
+      labels: dataLevel.labels,
+      datasets: [{
+        data: dataLevel.values,
+        // warna disamakan dengan tombol Admin=primary, Operator Barang=success, Operator Mahasiswa=danger
+        backgroundColor: ['#0d6efd', '#198754', '#dc3545']
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { position: 'bottom' } }
+    }
+  });
+</script>
+<?php endif; ?>
 
 <?php include 'layout/footer.php'; ?>

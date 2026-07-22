@@ -12,6 +12,12 @@ $title = 'Daftar Pegawai';
 include 'layout/header.php';
 
 $data_pegawai = select("SELECT * FROM pegawai ORDER BY id_pegawai DESC");
+
+// Agregasi data untuk chart distribusi jabatan
+$chart_jabatan = [];
+foreach ($data_pegawai as $p) {
+    $chart_jabatan[$p['jabatan']] = ($chart_jabatan[$p['jabatan']] ?? 0) + 1;
+}
 ?>
 
       <!--begin::App Main-->
@@ -66,27 +72,76 @@ $data_pegawai = select("SELECT * FROM pegawai ORDER BY id_pegawai DESC");
                 </table>
               </div>
             </div>
+
+            <!--begin::Chart Row Pegawai-->
+            <div class="row mt-4">
+              <div class="col-md-8 col-lg-6 mb-3">
+                <div class="card h-100">
+                  <div class="card-header bg-info text-white">
+                    <h6 class="card-title mb-0"><i class="bi bi-bar-chart-fill me-1"></i> Distribusi Pegawai per Jabatan</h6>
+                  </div>
+                  <div class="card-body">
+                    <canvas id="chartJabatan" height="220"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!--end::Chart Row Pegawai-->
+
           </div>
         </div>
         <!--end::App Content-->
       </main>
       <!--end::App Main-->
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script>
-    $('document').ready(function() {
-        getPegawai()
-    });
+  // Data awal dari render PHP (first paint), selanjutnya di-update via polling realtime
+  const dataJabatanAwal = {
+    labels: <?= json_encode(array_keys($chart_jabatan)); ?>,
+    values: <?= json_encode(array_values($chart_jabatan)); ?>
+  };
 
-    function getPegawai()
-    {
-        $.ajax({
-            url: "realtime-pegawai.php",
-            type: "GET",
-            success: function(response) {
-                $('#live_data').html(response)
-            }
-        });
+  const chartJabatan = new Chart(document.getElementById('chartJabatan'), {
+    type: 'bar',
+    data: {
+      labels: dataJabatanAwal.labels,
+      datasets: [{
+        label: 'Jumlah Pegawai',
+        data: dataJabatanAwal.values,
+        backgroundColor: '#0dcaf0'
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      animation: { duration: 300 },
+      plugins: { legend: { display: false } },
+      scales: { x: { beginAtZero: true, ticks: { precision: 0 } } }
     }
+  });
+
+  function getPegawai() {
+    $.ajax({
+      url: "realtime-pegawai.php",
+      type: "GET",
+      dataType: "json",
+      success: function(response) {
+        // update tabel
+        $('#live_data').html(response.rows);
+
+        // update chart tanpa reload/flicker
+        chartJabatan.data.labels = response.chart_labels;
+        chartJabatan.data.datasets[0].data = response.chart_values;
+        chartJabatan.update();
+      }
+    });
+  }
+
+  $(document).ready(function() {
+    getPegawai();              // ambil data pertama kali
+    setInterval(getPegawai, 5000); // lalu polling tiap 5 detik supaya realtime
+  });
 </script>
 
 <?php include 'layout/footer.php'; ?>

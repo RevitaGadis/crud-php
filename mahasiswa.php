@@ -40,6 +40,14 @@ if (isset($_POST['ubah'])) {
 }
 
 $data_mahasiswa = select("SELECT * FROM mahasiswa ORDER BY id_mahasiswa DESC");
+
+// Agregasi data untuk chart
+$chart_prodi = [];
+$chart_jk    = [];
+foreach ($data_mahasiswa as $m) {
+    $chart_prodi[$m['prodi']] = ($chart_prodi[$m['prodi']] ?? 0) + 1;
+    $chart_jk[$m['jk']]       = ($chart_jk[$m['jk']] ?? 0) + 1;
+}
 ?>
 
       <!--begin::App Main-->
@@ -114,6 +122,32 @@ $data_mahasiswa = select("SELECT * FROM mahasiswa ORDER BY id_mahasiswa DESC");
                 </table>
               </div>
             </div>
+
+            <!--begin::Chart Row Mahasiswa-->
+            <div class="row mt-4">
+              <div class="col-md-6 mb-3">
+                <div class="card h-100">
+                  <div class="card-header bg-primary text-white">
+                    <h6 class="card-title mb-0"><i class="bi bi-pie-chart-fill me-1"></i> Distribusi Mahasiswa per Prodi</h6>
+                  </div>
+                  <div class="card-body">
+                    <canvas id="chartProdi" height="220"></canvas>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <div class="card h-100">
+                  <div class="card-header bg-info text-white">
+                    <h6 class="card-title mb-0"><i class="bi bi-bar-chart-fill me-1"></i> Distribusi Mahasiswa per Jenis Kelamin</h6>
+                  </div>
+                  <div class="card-body">
+                    <canvas id="chartJk" height="220"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!--end::Chart Row Mahasiswa-->
+
           </div>
         </div>
         <!--end::App Content-->
@@ -163,7 +197,7 @@ $data_mahasiswa = select("SELECT * FROM mahasiswa ORDER BY id_mahasiswa DESC");
           </div>
           <div class="mb-3">
             <label for="foto" class="form-label">Foto</label>
-            <input type="file" class="form-control" id="foto" name="foto" onchange="previewImg(this, '.img-preview-tambah')">
+            <input type="file" class="form-control" id="foto" name="foto" onchange="previewImg(this, '.img-preview-tambah')" required>
             <img src="" alt="" class="img-thumbnail img-preview-tambah mt-2" width="100px">
           </div>
         </div>
@@ -259,8 +293,51 @@ $data_mahasiswa = select("SELECT * FROM mahasiswa ORDER BY id_mahasiswa DESC");
 </div>
 <?php endforeach; ?>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script>
   new DataTable('#tabel');
+
+  // Data chart dikirim dari PHP (hasil query data_mahasiswa)
+  const dataProdi = {
+    labels: <?= json_encode(array_keys($chart_prodi)); ?>,
+    values: <?= json_encode(array_values($chart_prodi)); ?>
+  };
+  const dataJk = {
+    labels: <?= json_encode(array_keys($chart_jk)); ?>,
+    values: <?= json_encode(array_values($chart_jk)); ?>
+  };
+
+  new Chart(document.getElementById('chartProdi'), {
+    type: 'doughnut',
+    data: {
+      labels: dataProdi.labels,
+      datasets: [{
+        data: dataProdi.values,
+        backgroundColor: ['#0d6efd', '#6610f2', '#6f42c1', '#0dcaf0', '#20c997']
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { position: 'bottom' } }
+    }
+  });
+
+  new Chart(document.getElementById('chartJk'), {
+    type: 'bar',
+    data: {
+      labels: dataJk.labels,
+      datasets: [{
+        label: 'Jumlah Mahasiswa',
+        data: dataJk.values,
+        backgroundColor: ['#0dcaf0', '#fd7e14']
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+    }
+  });
 
   function previewImg(input, targetSelector) {
     const imgPreview = document.querySelector(targetSelector);
