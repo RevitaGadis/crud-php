@@ -84,7 +84,7 @@ if (isset($_POST['login'])) {
       <label for="floatingPassword">Password</label>
     </div>
 
-    <div class="g-recaptcha" data-sitekey=""></div>
+    <div class="g-recaptcha" data-sitekey="6LdTGF8tAAAAAPO9x9AwWrae1H-jv8XgdREyhwAh"></div>
 
     <button class="w-100 btn btn-lg btn-primary" type="submit" name="login">Login</button>
   </form>
